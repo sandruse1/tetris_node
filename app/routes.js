@@ -59,6 +59,39 @@ module.exports = function (app, passport) {
         failureRedirect: '/connect/local',
         failureFlash:true
     }));
+
+    app.get('/unlink/facebook', function (req, res) {
+        var user = req.user;
+
+        user.facebook.token = null;
+        user.save(function (err) {
+            if (err)
+                throw err;
+            res.redirect('/profile');
+        })
+    });
+
+    app.get('/unlink/local', function (req, res) {
+        var user = req.user;
+        user.local.username = null;
+        user.local.password = null;
+        user.save(function (err) {
+            if (err)
+                throw err;
+            res.redirect('/profile');
+        })
+    });
+
+    app.get('/unlink/google', function (req, res) {
+        var user = req.user;
+
+        user.google.token = null;
+        user.save(function (err) {
+            if (err)
+                throw err;
+            res.redirect('/profile');
+        })
+    });
 };
 
 function isLoggedIn(req,res,next) {
