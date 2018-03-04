@@ -1,66 +1,64 @@
-var User = require('./models/user');
+module.exports = function (router, passport) {
 
-module.exports = function (app, passport) {
-    app.get('/', function (req, res) {
+    //localhost:3000/auth/
+    router.get('/', function (req, res) {
         res.render('index.ejs')
     });
 
-    app.get('/login', function (req,res) {
+    //localhost:3000/auth/login
+    router.get('/login', function (req,res) {
         res.render('login.ejs', {message:req.flash('loginMessage')})
     });
 
-    app.post('/login', passport.authenticate('local-login',{
+    //localhost:3000/auth/login
+    router.post('/login', passport.authenticate('local-login',{
         successRedirect: '/profile',
         failureRedirect: '/login',
         failureFlash:true
     }));
 
-    app.get('/signup', function (req, res) {
+    //localhost:3000/auth/signup
+    router.get('/signup', function (req, res) {
         res.render('signup.ejs', {message:req.flash('signupMessage')});
     });
 
-    app.post('/signup', passport.authenticate('local-signup', {
+    router.post('/signup', passport.authenticate('local-signup', {
         successRedirect: '/',
         failureRedirect: '/signup',
         failureFlash:true
     }));
-    
-    app.get('/profile', isLoggedIn, function (req,res) {
-        res.render('profile.ejs', {user:req.user})
-    });
 
-
-    app.get('/logout', function (req,res) {
+    router.get('/logout', function (req,res) {
         req.logout();
         res.redirect('/');
     });
 
-    app.get('/auth/facebook', passport.authenticate('facebook', {scope:['email']}));
+    router.get('/facebook', passport.authenticate('facebook', {scope:['email']}));
 
-    app.get('/auth/facebook/callback',
+    router.get('/facebook/callback',
         passport.authenticate('facebook', { successRedirect: '/profile',
-                                            failureRedirect: '/' }));
+            failureRedirect: '/' }));
 
-    app.get('/auth/google', passport.authenticate('google',{scope:['profile','email']}));
+    router.get('/google', passport.authenticate('google',{scope:['profile','email']}));
 
-    app.get('/auth/google/callback',
+    router.get('/google/callback',
         passport.authenticate('google', { successRedirect: '/profile',
             failureRedirect: '/' }));
 
-    app.get('/connect/facebook', passport.authorize('facebook', {scope:'email'}));
-    app.get('/connect/google', passport.authorize('google', {scope:['profile', 'email']}));
+    router.get('/connect/facebook', passport.authorize('facebook', {scope:'email'}));
+    router.get('/connect/google', passport.authorize('google', {scope:['profile', 'email']}));
 
-    app.get('/connect/local', function (req,res) {
+    router.get('/connect/local', function (req,res) {
         res.render('connect-local.ejs', {message: req.flash('signupMessage')});
     });
 
-    app.post('/connect/local', passport.authenticate('local-signup', {
+    router.post('/connect/local', passport.authenticate('local-signup', {
         successRedirect: '/profile',
         failureRedirect: '/connect/local',
         failureFlash:true
     }));
 
-    app.get('/unlink/facebook', function (req, res) {
+    router.get('/unlink/facebook', function (req, res) {
         var user = req.user;
 
         user.facebook.token = null;
@@ -71,7 +69,7 @@ module.exports = function (app, passport) {
         })
     });
 
-    app.get('/unlink/local', function (req, res) {
+    router.get('/unlink/local', function (req, res) {
         var user = req.user;
         user.local.username = null;
         user.local.password = null;
@@ -82,7 +80,7 @@ module.exports = function (app, passport) {
         })
     });
 
-    app.get('/unlink/google', function (req, res) {
+    router.get('/unlink/google', function (req, res) {
         var user = req.user;
 
         user.google.token = null;
@@ -93,11 +91,3 @@ module.exports = function (app, passport) {
         })
     });
 };
-
-function isLoggedIn(req,res,next) {
-    if (req.isAuthenticated()){
-        return next();
-    }
-    res.redirect('/login');
-}
-

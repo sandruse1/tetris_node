@@ -1,8 +1,10 @@
 var LocalStrategy = require('passport-local').Strategy;
 var FacebookStrategy = require('passport-facebook').Strategy;
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+var BearerStrategy = require('passport-http-bearer').Strategy;
 
-var User = require('../app/models/user');
+var User = require('../app/models/user').User;
+var Token  = require('../app/models/user').Token;
 var configAuth = require('./auth');
 
 module.exports = function(passport) {
@@ -135,7 +137,8 @@ module.exports = function(passport) {
                         });
                     }
                 });
-        }));
+            })
+        );
 
     passport.use(new GoogleStrategy({
             clientID: configAuth.googleAuth.clientID,
@@ -196,7 +199,17 @@ module.exports = function(passport) {
 
 
             });
+        })
+    );
+
+
+    passport.use(new BearerStrategy({},
+        function(token, done){
+            Token.findOne({value: token}).populate('user').exec(function(err, token){
+                if(!token)
+                    return done(null, false);
+                return done(null, token.user);
+            })
         }));
 
-
-}
+};
