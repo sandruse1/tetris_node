@@ -10,6 +10,10 @@ module.exports = function(router, passport){
         res.redirect('/auth');
     });
 
+    router.get('/game', function (req, res) {
+        res.render('game.ejs')
+    });
+
     router.get('/profile', function(req, res){
         User.findOne({ _id: req.user._id }).populate('token').exec(function(err, user){
             res.render('profile.ejs', { user: user });
@@ -27,8 +31,8 @@ module.exports = function(router, passport){
         });
     });
 
-    router.get('/*', function(req, res){
-        res.redirect('/profile');
-    });
+    // router.get('/*', function(req, res){
+    //     res.redirect('/profile');
+    // });
 
 }
